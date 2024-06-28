@@ -1,8 +1,8 @@
 module.exports = {
   entry: './src/index.tsx',
   output: {
-    filename: '<PluginName>.js',
-    library: '<PluginName>',
+    filename: 'ChatMentionPlugin.js',
+    library: 'ChatMentionPlugin',
     libraryTarget: 'umd',
     publicPath: '/static/',
     globalObject: 'this',

@@ -1,17 +1,22 @@
-# Repository of a plugin for BigBlueButton
+# Chat Mention Plugin
 
 ## Description
 
-A brief description of the plugin including a screenshot or a short video.
+The Chat Mention Plugin serves as a demonstration of how developers can create their own custom plugins. This plugin basically implements the "mention" feature as you can see down below.
 
-## Running the Plugin From Source Code
+![Gif of plugin demo](./public/assets/ChatMention.gif)
 
-## Building the Plugin
+See the **Usage** section of the main README to see how to build and run plugins.
 
+## Configuration Example
 
-## Background
+Add this to the `settings.yml` of the BBB HTML5-client:
 
-BigBlueButton added supports for plugins in 2024 with BBB 3.0.
-Check the official [documentation website](https://docs.bigbluebutton.org) for more information.
+```yaml
+public:
+  plugins:
+    - name: ChatMention
+      url: <<PLUGIN_URL>>
+```
 
-This plugin repository was created using the plugin [template repository for BigBlueButton](https://github.com/bigbluebutton/plugin-template) hosted on GitHub.
+Where `<<PLUGIN_URL>>` is the URL that points to the location where your bundled `ChatMention.js`-file is hosted.
