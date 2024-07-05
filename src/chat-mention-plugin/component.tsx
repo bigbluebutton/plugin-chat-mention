@@ -6,16 +6,13 @@ import { ChatMentionProps } from './types';
 
 const REGEX = /@\S*(?:\s{0,2}\S+)?/;
 
-function ChatMention(
-  { pluginUuid: uuid }: ChatMentionProps,
-): React.ReactElement {
+function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement {
   BbbPluginSdk.initialize(uuid);
   const pluginApi: PluginApi = BbbPluginSdk.getPluginApi(uuid);
 
   const [chatIdsToApplyHighlights, setChatIdsToApplyHighlights] = useState<string[]>([]);
   const response = pluginApi.useLoadedChatMessages();
   const userListBasicInf = pluginApi.useUsersBasicInfo();
-  const currentUser = pluginApi.useCurrentUser();
 
   useEffect(() => {
     if (response.data && userListBasicInf.data) {
@@ -39,15 +36,12 @@ function ChatMention(
   chatMessagesDomElements?.forEach((chatMessageDomElement) => {
     const mention = chatMessageDomElement.innerText.match(REGEX);
     if (mention) {
-      const mentionedName = mention[0].slice(1);
-      let style = 'color: #4185cf; background-color: #f2f6f8;';
-      if (mentionedName === currentUser.data.name) {
-        style = 'color: #ff0000; background-color: #f2f6f8;';
-      }
+      const style = 'color: #4185cf; background-color: #f2f6f8;';
       // eslint-disable-next-line no-param-reassign
       chatMessageDomElement.innerHTML = chatMessageDomElement.innerHTML.replace(mention[0], `<span style="${style}">${mention[0]}</span>`);
     }
   });
+
   return null;
 }
 
