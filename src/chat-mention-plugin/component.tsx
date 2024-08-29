@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-
 import { BbbPluginSdk, PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import { ChatMentionProps } from './types';
 
-const REGEX = /@\S*(?:\s{0,2}\S+)?/;
+const REGEX = /@[^\s\n]+(?: [^\s\n]+)?/g;
 
 function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement {
   BbbPluginSdk.initialize(uuid);
@@ -19,10 +18,10 @@ function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement
       const userNames = userListBasicInf.data.user.map((user) => user.name);
 
       const idsToApply = response.data.filter((message) => {
-        const mentionMatch = message.message.match(REGEX);
-        if (mentionMatch) {
-          const mentionedName = mentionMatch[0].slice(1);
-          return userNames.includes(mentionedName);
+        const mentions = message.message.match(REGEX);
+        if (mentions) {
+          const mentionedNames = mentions.map((mention) => mention.slice(1));
+          return mentionedNames.some((name) => userNames.includes(name));
         }
         return false;
       }).map((message) => message.messageId);
@@ -33,14 +32,27 @@ function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement
 
   const chatMessagesDomElements = pluginApi.useChatMessageDomElements(chatIdsToApplyHighlights);
 
-  chatMessagesDomElements?.forEach((chatMessageDomElement) => {
-    const mention = chatMessageDomElement.innerText.match(REGEX);
-    if (mention) {
-      const style = 'color: #4185cf; background-color: #f2f6f8;';
-      // eslint-disable-next-line no-param-reassign
-      chatMessageDomElement.innerHTML = chatMessageDomElement.innerHTML.replace(mention[0], `<span style="${style}">${mention[0]}</span>`);
-    }
-  });
+  useEffect(() => {
+    chatMessagesDomElements?.forEach((chatMessageDomElement) => {
+      const parentElement = chatMessageDomElement.parentElement;
+      
+      if (parentElement?.getAttribute('already-styled') === 'true') return;
+
+      parentElement?.setAttribute('already-styled', 'true');
+      
+      let updatedHtml = chatMessageDomElement.innerHTML;
+      const mentions = chatMessageDomElement.innerText.match(REGEX);
+
+      if (mentions) {
+        const style = 'color: #4185cf; background-color: #f2f6f8;';
+        mentions.forEach((mention) => {
+          const mentionText = mention;
+          updatedHtml = updatedHtml.replace(mentionText, `<span style="${style}">${mentionText}</span>`);
+        });
+        chatMessageDomElement.innerHTML = updatedHtml;
+      }
+    });
+  }, [chatMessagesDomElements]);
 
   return null;
 }
