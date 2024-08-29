@@ -1,3 +1,5 @@
+
+
 # Chat Mention Plugin
 
 ## Description
@@ -6,17 +8,35 @@ The Chat Mention Plugin serves as a demonstration of how developers can create t
 
 ![Gif of plugin demo](./public/assets/ChatMention.gif)
 
-See the **Usage** section of the main README to see how to build and run plugins.
 
-## Configuration Example
+## Running the Plugin
 
-Add this to the `settings.yml` of the BBB HTML5-client:
+1. Start the development server:
 
-```yaml
-public:
-  plugins:
-    - name: ChatMention
-      url: <<PLUGIN_URL>>
+```bash
+cd $HOME/mconf-bigbluebutton-plugins/questions
+npm install
+npm start
 ```
 
-Where `<<PLUGIN_URL>>` is the URL that points to the location where your bundled `ChatMention.js`-file is hosted.
+2. Add reference to it on BigBlueButton's `settings.yml` and add the required channels:
+
+```yaml
+  plugins:
+    - name: ChatMentionPlugin
+      url: https://<dev-server-domain>/plugins/ChatMentionPlugin.js
+```
+
+<details>
+  <summary>It may be necessary to configure a specific route in Nginx to serve the plugin under development.</summary>
+
+  Something like this:
+
+  ```nginx
+  #questions-plugins.nginx
+  location /plugins/ {
+    proxy_pass http://127.0.0.1:4701/static/;                 
+  }
+  ```
+
+</details>
