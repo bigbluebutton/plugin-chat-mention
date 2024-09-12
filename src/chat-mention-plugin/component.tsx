@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { BbbPluginSdk, PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import { ChatMentionProps } from './types';
 
-const REGEX = /@[^\s\n]+(?: [^\s\n]+)?/g;
+const REGEX = /@[^\n@]+/g;
 
 function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement {
   BbbPluginSdk.initialize(uuid);
@@ -19,9 +19,13 @@ function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement
 
       const idsToApply = response.data.filter((message) => {
         const mentions = message.message.match(REGEX);
+
         if (mentions) {
-          const mentionedNames = mentions.map((mention) => mention.slice(1));
-          return mentionedNames.some((name) => userNames.includes(name));
+          const mentionMatchesUser = mentions.some((mention) => {
+            const userMatched = userNames.some((name) => mention.includes(name));
+            return userMatched;
+          });
+          return mentionMatchesUser;
         }
         return false;
       }).map((message) => message.messageId);
@@ -35,24 +39,30 @@ function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement
   useEffect(() => {
     chatMessagesDomElements?.forEach((chatMessageDomElement) => {
       const parentElement = chatMessageDomElement.parentElement;
-      
+
       if (parentElement?.getAttribute('already-styled') === 'true') return;
 
       parentElement?.setAttribute('already-styled', 'true');
-      
+
       let updatedHtml = chatMessageDomElement.innerHTML;
       const mentions = chatMessageDomElement.innerText.match(REGEX);
 
       if (mentions) {
         const style = 'color: #4185cf; background-color: #f2f6f8;';
+
         mentions.forEach((mention) => {
-          const mentionText = mention;
-          updatedHtml = updatedHtml.replace(mentionText, `<span style="${style}">${mentionText}</span>`);
+          userListBasicInf.data.user.forEach((user) => {
+            const userNameRegex = new RegExp(`@${user.name}\\b`);
+            if (userNameRegex.test(mention)) {
+              const mentionText = `@${user.name}`;
+              updatedHtml = updatedHtml.replace(mentionText, `<span style="${style}">${mentionText}</span>`);
+            }
+          });
         });
         chatMessageDomElement.innerHTML = updatedHtml;
       }
     });
-  }, [chatMessagesDomElements]);
+  }, [chatMessagesDomElements, userListBasicInf]);
 
   return null;
 }
