@@ -15,15 +15,19 @@ function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement
 
   useEffect(() => {
     if (response.data && userListBasicInf.data) {
-      const userNames = userListBasicInf.data.user.map((user) => user.name);
+      const userNames = userListBasicInf.data.user
+        .map((user) => user.name)
+        .sort((a, b) => b.length - a.length);
 
       const idsToApply = response.data.filter((message) => {
         const mentions = message.message.match(REGEX);
 
         if (mentions) {
           const mentionMatchesUser = mentions.some((mention) => {
-            const userMatched = userNames.some((name) => mention.includes(name));
-            return userMatched;
+            return userNames.some((name) => {
+              const userNameRegex = new RegExp(`@${name}\\b`, 'i');
+              return userNameRegex.test(mention.trim());
+            });
           });
           return mentionMatchesUser;
         }
@@ -51,14 +55,15 @@ function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement
         const style = 'color: #4185cf; background-color: #f2f6f8;';
 
         mentions.forEach((mention) => {
-          userListBasicInf.data.user.forEach((user) => {
-            const userNameRegex = new RegExp(`@${user.name}\\b`);
-            if (userNameRegex.test(mention)) {
+          userListBasicInf.data.user
+            .sort((a, b) => b.name.length - a.name.length)
+            .forEach((user) => {
+              const userNameRegex = new RegExp(`@${user.name}\\b`, 'gi');
               const mentionText = `@${user.name}`;
-              updatedHtml = updatedHtml.replace(mentionText, `<span style="${style}">${mentionText}</span>`);
-            }
-          });
+              updatedHtml = updatedHtml.replace(userNameRegex, `<span style="${style}">${mentionText}</span>`);
+            });
         });
+
         chatMessageDomElement.innerHTML = updatedHtml;
       }
     });
