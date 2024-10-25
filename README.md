@@ -19,12 +19,9 @@ npm install
 npm start
 ```
 
-2. Add reference to it on BigBlueButton's `settings.yml` and add the required channels:
-
-```yaml
-  plugins:
-    - name: ChatMentionPlugin
-      url: https://<dev-server-domain>/plugins/ChatMentionPlugin.js
+2.  Edit the plugin manifest and pass the url to it in the CREATE call(or add it to the permanent plugins manifest list in bigbluebutton.properties):
+```
+pluginManifests=[{url:"https://MANIFEST_HOST/manifest.json", checksum="<sha256 of the file>"}]
 ```
 
 <details>
