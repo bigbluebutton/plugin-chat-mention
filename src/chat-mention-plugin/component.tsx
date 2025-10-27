@@ -23,12 +23,12 @@ function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement
         const mentions = message.message.match(REGEX);
 
         if (mentions) {
-          const mentionMatchesUser = mentions.some((mention) => {
-            return userNames.some((name) => {
+          const mentionMatchesUser = mentions.some(
+            (mention) => userNames.some((name) => {
               const userNameRegex = new RegExp(`@${name}\\b`, 'i');
               return userNameRegex.test(mention.trim());
-            });
-          });
+            }),
+          );
           return mentionMatchesUser;
         }
         return false;
@@ -41,8 +41,9 @@ function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement
   const chatMessagesDomElements = pluginApi.useChatMessageDomElements(chatIdsToApplyHighlights);
 
   useEffect(() => {
-    chatMessagesDomElements?.forEach((chatMessageDomElement) => {
-      const parentElement = chatMessageDomElement.parentElement;
+    chatMessagesDomElements?.forEach((domElement) => {
+      const chatMessageDomElement = domElement;
+      const { parentElement } = chatMessageDomElement;
 
       if (parentElement?.getAttribute('already-styled') === 'true') return;
 
@@ -54,7 +55,7 @@ function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement
       if (mentions) {
         const style = 'color: #4185cf; background-color: #f2f6f8;';
 
-        mentions.forEach((mention) => {
+        mentions.forEach(() => {
           userListBasicInf.data.user
             .sort((a, b) => b.name.length - a.name.length)
             .forEach((user) => {
