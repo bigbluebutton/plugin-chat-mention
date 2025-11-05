@@ -1,6 +1,7 @@
 {
   "requiredSdkVersion": "~0.0.66",
   "name": "ChatMentionPlugin",
+  "version": "0.3.0",
   "javascriptEntrypointUrl": "ChatMentionPlugin.js"
 }
 
